@@ -1,5 +1,6 @@
 interface Config {
   init?: boolean
+  cacheRejections?: boolean
 }
 
 const noop = () => {}
@@ -13,10 +14,14 @@ class Phunk<T> {
   #isResolved = false
   #isRejected = false
 
+  #cacheRejections
+
   constructor(fn: () => T, config?: Config) {
     this.#fn = fn
 
     const options = config ?? {}
+
+    this.#cacheRejections = options.cacheRejections === true
 
     if (options.init === true) {
       this.next().catch(noop) // catch error to avoid unhandled promise exceptions
@@ -25,12 +30,13 @@ class Phunk<T> {
 
   async current() {
     if (this.#promise === null) return this.next()
+    if (!this.#cacheRejections && this.#isRejected) return this.next()
 
     return this.#promise
   }
 
   async next() {
-    if (this.#promise === null || !this.#isResolving) {
+    if (!this.#isResolving) {
       this.#promise = this.#resolve()
     }
     return this.#promise
