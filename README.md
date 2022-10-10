@@ -1,5 +1,8 @@
 # phunky
 
+[![npm package](https://img.shields.io/npm/v/phunky.svg)](https://www.npmjs.com/package/phunky)
+[![npm downloads](https://img.shields.io/npm/dm/phunky.svg)](https://www.npmjs.com/package/phunky)
+
 `phunky` (promisified thunk, pronounced funky) is yet another [thunk](https://en.wikipedia.org/wiki/Thunk)-inspired library, to delay a calculation until its result is needed, but also cache the result
 
 Being promise-based, you can await the result of your function inline
