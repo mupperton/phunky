@@ -1,3 +1,9 @@
+interface Config {
+  init?: boolean
+}
+
+const noop = () => {}
+
 class Phunk<T> {
   #fn: () => T
 
@@ -7,8 +13,14 @@ class Phunk<T> {
   #isResolved = false
   #isRejected = false
 
-  constructor(fn: () => T) {
+  constructor(fn: () => T, config?: Config) {
     this.#fn = fn
+
+    const options = config ?? {}
+
+    if (options.init === true) {
+      this.next().catch(noop) // catch error to avoid unhandled promise exceptions
+    }
   }
 
   async current() {
