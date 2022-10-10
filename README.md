@@ -10,16 +10,16 @@ Being promise-based, you can await the result of your function inline
 
 ```js
 // esm
-import { Thunk } from 'phunky'
+import { Phunk } from 'phunky'
 
 // cjs
-const { Thunk } = require('phunky')
+const { Phunk } = require('phunky')
 ```
 
 **Example usage**
 
 ```js
-import { Thunk } from 'phunky'
+import { Phunk } from 'phunky'
 
 let counter = 0
 
@@ -28,7 +28,7 @@ const getNextCounter = async () => {
   return counter
 }
 
-const counterCache = new Thunk(getNextCounter)
+const counterCache = new Phunk(getNextCounter)
 
 console.log(await counterCache.current()) // 1
 console.log(await counterCache.current()) // 1
@@ -41,10 +41,15 @@ console.log(await counterCache.current()) // 3
 
 If you have a long-running function to execute, you can always inspect the status using the following helper methods
 
-```js
-const myThunk = new Thunk(async () => { /* Some long process */ })
+- `isResolving` will return true if your function is running
+- `isResolved` will return true if your function completed without throwing
+- `isRejected` will return true if your function threw an error
 
-console.log(myThunk.isResolving()) // true - if your function is running
-console.log(myThunk.isResolved()) // false - if your function completed without throwing
-console.log(myThunk.isRejected()) // false - if your function threw an error
+```js
+const myThunk = new Phunk(async () => { /* Some long process */ })
+
+myThunk.next() // if you don't await the result then:
+console.log(myThunk.isResolving()) // true
+console.log(myThunk.isResolved()) // false
+console.log(myThunk.isRejected()) // false
 ```

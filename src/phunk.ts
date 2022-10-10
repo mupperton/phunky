@@ -1,4 +1,4 @@
-class Thunk<T> {
+class Phunk<T> {
   #fn: () => T
 
   #promise: Promise<T> | null = null
@@ -54,4 +54,4 @@ class Thunk<T> {
   }
 }
 
-export { Thunk }
+export { Phunk }
