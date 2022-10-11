@@ -7,7 +7,7 @@ interface Config {
 const noop = () => {}
 
 class Phunk<T> {
-  #fn: () => T
+  #fn: () => T | Promise<T>
 
   #promise: Promise<T> | null = null
 
@@ -20,7 +20,7 @@ class Phunk<T> {
   #ttl
   #lastResolve = 0
 
-  constructor(fn: () => T, config?: Config) {
+  constructor(fn: () => T | Promise<T>, config?: Config) {
     const options = config ?? {}
 
     if (typeof options.ttl !== 'undefined' && (!Number.isSafeInteger(options.ttl) || options.ttl < 0)) {
@@ -59,7 +59,7 @@ class Phunk<T> {
     if (!this.#isResolving) {
       this.#promise = this.#resolve()
     }
-    return this.#promise
+    return this.#promise as Promise<T>
   }
 
   async #resolve() {
