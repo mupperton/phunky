@@ -2,6 +2,18 @@
 
 All notable changes will be included in this file.
 
+# Beta releases
+
+## 0.2.0 (2022-10-11)
+
+### Features
+
+* Added `ttl` config option to automatically re-invoke your function if it is considered stale ([ad7bfde](https://github.com/mupperton/phunky/commit/ad7bfdeac306c87f4df692aed4e385e39d554618))
+
+### Documentation
+
+* Added documentation of the config options and class methods for `Phunk` ([50dd6b7](https://github.com/mupperton/phunky/commit/50dd6b784be3225b1067e7d89a856e621db7d707))
+
 # Alpha releases
 
 ## 0.1.0 (2022-10-10)
