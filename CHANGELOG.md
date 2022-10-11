@@ -4,6 +4,12 @@ All notable changes will be included in this file.
 
 # Beta releases
 
+## 0.2.1 (2022-10-11)
+
+### Fixes
+
+* Fixed typings for promises, no longer have return types of `Promise<Promise<T>>` ([425e3ed](https://github.com/mupperton/phunky/commit/425e3ed98d11f769a880b01f495b65fc1317081e))
+
 ## 0.2.0 (2022-10-11)
 
 ### Features
