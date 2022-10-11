@@ -1,6 +1,7 @@
 interface Config {
   init?: boolean
   cacheRejections?: boolean
+  ttl?: number
 }
 
 const noop = () => {}
@@ -16,12 +17,21 @@ class Phunk<T> {
 
   #cacheRejections
 
-  constructor(fn: () => T, config?: Config) {
-    this.#fn = fn
+  #ttl
+  #lastResolve = 0
 
+  constructor(fn: () => T, config?: Config) {
     const options = config ?? {}
 
+    if (typeof options.ttl !== 'undefined' && (!Number.isSafeInteger(options.ttl) || options.ttl < 0)) {
+      throw new TypeError('<config.ttl> must be a positive integer')
+    }
+
+    this.#fn = fn
+
     this.#cacheRejections = options.cacheRejections === true
+
+    this.#ttl = options.ttl ?? null
 
     if (options.init === true) {
       this.next().catch(noop) // catch error to avoid unhandled promise exceptions
@@ -29,8 +39,18 @@ class Phunk<T> {
   }
 
   async current() {
-    if (this.#promise === null) return this.next()
-    if (!this.#cacheRejections && this.#isRejected) return this.next()
+    if (this.#promise === null) {
+      // first invocation
+      return this.next()
+    }
+    if (!this.#cacheRejections && this.#isRejected) {
+      // Configured not to cache rejections and previously rejected
+      return this.next()
+    }
+    if (this.#ttl !== null && Date.now() >= (this.#lastResolve + this.#ttl)) {
+      // ttl expired
+      return this.next()
+    }
 
     return this.#promise
   }
@@ -55,6 +75,9 @@ class Phunk<T> {
       this.#isRejected = true
       throw error
     } finally {
+      if (this.#ttl !== null) {
+        this.#lastResolve = Date.now()
+      }
       this.#isResolving = false
     }
   }
