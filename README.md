@@ -5,7 +5,13 @@
 
 `phunky` (promisified thunk, pronounced funky) is yet another [thunk](https://en.wikipedia.org/wiki/Thunk)-inspired library, to delay a calculation until its result is needed, but also cache the result
 
-Being promise-based, you can await the result of your function inline
+:star: You can provide a max age for the cache, so it automatically resolves your function again when stale, or force a new value at any time
+
+:tada: You can customise the behaviour of your Phunk, perhaps immediately resolve, or choose to cache rejections, very funky!
+
+:goat: Being promise-based, you can await the result of your function inline
+
+:100: Test coverage
 
 ### Getting started
 
@@ -40,23 +46,6 @@ console.log(await counterCache.next()) // 3
 console.log(await counterCache.current()) // 3
 ```
 
-**Resolution status**
-
-If you have a long-running function to execute, you can always inspect the status using the following helper methods
-
-- `isResolving` will return true if your function is running
-- `isResolved` will return true if your function completed without throwing
-- `isRejected` will return true if your function threw an error
-
-```js
-const myThunk = new Phunk(async () => { /* Some long process */ })
-
-myThunk.next() // if you don't await the result then:
-console.log(myThunk.isResolving()) // true
-console.log(myThunk.isResolved()) // false
-console.log(myThunk.isRejected()) // false
-```
-
 **Cache auto-refresh**
 
 Setting a ttl (time-to-live) will allow your function to automatically be re-invoked if the value is considered stale. Great for caching access tokens, or any values that can be time-expensive to refresh on every operation.
@@ -74,6 +63,23 @@ const counterCache = new Phunk(getNextCounter, { ttl: 1000 })
 console.log(await counterCache.current()) // 1
 // wait at least 1 second
 console.log(await counterCache.current()) // 2
+```
+
+**Resolution status**
+
+If you have a long-running function to execute, you can always inspect the status using the following helper methods
+
+- `isResolving` will return true if your function is running
+- `isResolved` will return true if your function completed without throwing
+- `isRejected` will return true if your function threw an error
+
+```js
+const myThunk = new Phunk(async () => { /* Some long process */ })
+
+myThunk.next() // if you don't await the result then:
+console.log(myThunk.isResolving()) // true
+console.log(myThunk.isResolved()) // false
+console.log(myThunk.isRejected()) // false
 ```
 
 ### Configuration
