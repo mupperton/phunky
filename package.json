@@ -1,6 +1,6 @@
 {
   "name": "phunky",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "description": "Funky promise-based cached thunk",
   "keywords": [
     "thunk",

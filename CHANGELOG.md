@@ -2,6 +2,12 @@
 
 All notable changes will be included in this file.
 
+## 1.0.0 (2022-10-15) - Official release :rocket:
+
+### Tests
+
+* Test suite added with 100% test coverage ([7ec47ab](https://github.com/mupperton/phunky/commit/7ec47abc09b986aa28f5d7688bdedf494afb7514))
+
 # Beta releases
 
 ## 0.2.1 (2022-10-11)
