@@ -87,6 +87,8 @@ console.log(myThunk.isRejected()) // false
 Optionally pass a configuration object as a second argument to the constructor, with the following options
 
 * `init`: Optional, defaults to `false`, set to `true` to immediately invoke your function and have the result ready for when you first call `.current()`.
+* `initialValue`: Optional. If set, your Phunk instance will resolve this value until either you call `.next()` or the `tll` duration has elapsed. Note, this option is redundant if you set `init` to true.
+* `allowUndefinedInitialValue`: Optional, defaults to `false`, set to `true` if you want to manually set an `initialValue` of `undefined`, otherwise only defined values will be used.
 * `cacheRejections`: Optional, defaults to `false`, set to `true` for your Phunky instance to cache any errors that are thrown by your function. If `false`, calling `.current()` will try re-invoking your function if it previously rejected.
 * `ttl`: (time-to-live) Optional. If set, it must be a positive integer for the number of **milliseconds** resolved values should live for. Any calls to `.current()` after that time, will automatically re-invoke your function to get an updated value.
 

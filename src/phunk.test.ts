@@ -46,9 +46,45 @@ describe('immediately invoke', () => {
 
   it('does not throw unhandled exception errors if resolver throws', () => {
     const mockError = new Error('Rejection')
-    const resolver = jest.fn(() => { throw mockError })
+    const resolver = () => { throw mockError }
 
     expect(() => new Phunk(resolver, { init: true })).not.toThrow(mockError)
+  })
+})
+
+describe('initial value', () => {
+  it('can be configured to have an initial value', async () => {
+    const resolver = jest.fn(() => 2)
+
+    const phunk = new Phunk(resolver, { initialValue: 1 })
+
+    await expect(phunk.current()).resolves.toBe(1)
+
+    expect(resolver).toHaveBeenCalledTimes(0)
+  })
+
+  it('does not use undefined as an initial value by default', async () => {
+    const resolver = () => 1
+
+    const phunk = new Phunk(resolver, { initialValue: undefined })
+
+    await expect(phunk.current()).resolves.toBe(1)
+  })
+
+  it('can be configured to allow an initial value of undefined', async () => {
+    const resolver = () => 1
+
+    const phunk = new Phunk(resolver, { initialValue: undefined, allowUndefinedInitialValue: true })
+
+    await expect(phunk.current()).resolves.toBeUndefined()
+  })
+
+  it('never sets the initial value if not defined', async () => {
+    const resolver = () => 1
+
+    const phunk = new Phunk(resolver, { allowUndefinedInitialValue: true })
+
+    await expect(phunk.current()).resolves.toBe(1)
   })
 })
 
@@ -176,6 +212,21 @@ describe('caching', () => {
       await expect(phunk.next()).resolves.toBe(2)
 
       expect(resolver).toHaveBeenCalledTimes(2)
+    })
+
+    it('initial values also have the ttl', async () => {
+      const resolver = jest.fn(() => 2)
+
+      const ttl = 100
+      const phunk = new Phunk(resolver, { initialValue: 1, ttl })
+
+      await expect(phunk.current()).resolves.toBe(1)
+
+      await sleep(ttl)
+
+      await expect(phunk.current()).resolves.toBe(2)
+
+      expect(resolver).toHaveBeenCalledTimes(1)
     })
   })
 })

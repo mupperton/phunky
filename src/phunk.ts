@@ -1,5 +1,7 @@
-interface Config {
+interface Config<T> {
   init?: boolean
+  initialValue?: T
+  allowUndefinedInitialValue?: boolean
   cacheRejections?: boolean
   ttl?: number
 }
@@ -20,7 +22,7 @@ class Phunk<T> {
   #ttl
   #lastResolve = 0
 
-  constructor(fn: () => T | Promise<T>, config?: Config) {
+  constructor(fn: () => T | Promise<T>, config?: Config<T>) {
     const options = config ?? {}
 
     if (typeof options.ttl !== 'undefined' && (!Number.isSafeInteger(options.ttl) || options.ttl < 0)) {
@@ -32,6 +34,16 @@ class Phunk<T> {
     this.#cacheRejections = options.cacheRejections === true
 
     this.#ttl = options.ttl ?? null
+
+    if (typeof options.initialValue !== 'undefined') {
+      this.#promise = Promise.resolve(options.initialValue)
+    } else if (Object.hasOwnProperty.call(options, 'initialValue') && options.allowUndefinedInitialValue === true) {
+      this.#promise = Promise.resolve(undefined as T)
+    }
+
+    if (this.#promise !== null && this.#ttl !== null) {
+      this.#lastResolve = Date.now()
+    }
 
     if (options.init === true) {
       this.next().catch(noop) // catch error to avoid unhandled promise exceptions
