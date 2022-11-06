@@ -2,6 +2,12 @@
 
 All notable changes will be included in this file.
 
+## 1.1.0 (2022-11-06)
+
+### Features
+
+* Added option to set an initial value ([418e19c](https://github.com/mupperton/phunky/commit/418e19cbe728d1c75ee25e2d7f1ed948e8720a06))
+
 ## 1.0.0 (2022-10-15) - Official release :rocket:
 
 ### Tests

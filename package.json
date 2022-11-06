@@ -1,6 +1,6 @@
 {
   "name": "phunky",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Funky promise-based cached thunk",
   "keywords": [
     "thunk",
@@ -37,6 +37,7 @@
   },
   "sideEffects": false,
   "scripts": {
+    "bump": "npm --no-git-tag-version version",
     "typecheck": "tsc --noEmit",
     "test": "jest ./src/",
     "prebuild": "rm -rf dist",
