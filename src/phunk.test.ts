@@ -273,4 +273,20 @@ describe('resolver status', () => {
     expect(phunk.isResolved()).toBe(false)
     expect(phunk.isRejected()).toBe(true)
   })
+
+  it('with initial value', () => {
+    const phunk = new Phunk(() => 1, { initialValue: 1 })
+
+    expect(phunk.isResolving()).toBe(false)
+    expect(phunk.isResolved()).toBe(true)
+    expect(phunk.isRejected()).toBe(false)
+  })
+
+  it('with undefined initial value', () => {
+    const phunk = new Phunk(noop, { initialValue: undefined, allowUndefinedInitialValue: true })
+
+    expect(phunk.isResolving()).toBe(false)
+    expect(phunk.isResolved()).toBe(true)
+    expect(phunk.isRejected()).toBe(false)
+  })
 })

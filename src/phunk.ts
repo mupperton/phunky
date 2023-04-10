@@ -36,8 +36,10 @@ class Phunk<T> {
 
     if (typeof options.initialValue !== 'undefined') {
       this.#promise = Promise.resolve(options.initialValue)
+      this.#isResolved = true
     } else if (Object.hasOwnProperty.call(options, 'initialValue') && options.allowUndefinedInitialValue === true) {
       this.#promise = Promise.resolve(undefined as T)
+      this.#isResolved = true
     }
 
     if (this.#promise !== null && this.#ttl !== null) {
