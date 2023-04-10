@@ -1,4 +1,4 @@
-interface Config<T> {
+type Config<T> = {
   init?: boolean
   initialValue?: T
   allowUndefinedInitialValue?: boolean
@@ -18,9 +18,8 @@ class Phunk<T> {
   #isRejected = false
 
   #cacheRejections
-
   #ttl
-  #lastResolve = 0
+  #lastResolveTime = 0
 
   constructor(fn: () => T | Promise<T>, config?: Config<T>) {
     const options = config ?? {}
@@ -42,7 +41,7 @@ class Phunk<T> {
     }
 
     if (this.#promise !== null && this.#ttl !== null) {
-      this.#lastResolve = Date.now()
+      this.#lastResolveTime = Date.now()
     }
 
     if (options.init === true) {
@@ -59,7 +58,7 @@ class Phunk<T> {
       // Configured not to cache rejections and previously rejected
       return this.next()
     }
-    if (this.#ttl !== null && Date.now() >= (this.#lastResolve + this.#ttl)) {
+    if (this.#ttl !== null && Date.now() >= (this.#lastResolveTime + this.#ttl)) {
       // ttl expired
       return this.next()
     }
@@ -88,7 +87,7 @@ class Phunk<T> {
       throw error
     } finally {
       if (this.#ttl !== null) {
-        this.#lastResolve = Date.now()
+        this.#lastResolveTime = Date.now()
       }
       this.#isResolving = false
     }
