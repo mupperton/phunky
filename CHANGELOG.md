@@ -2,6 +2,16 @@
 
 All notable changes will be included in this file.
 
+## 1.2.0 (2023-04-10)
+
+### Features
+
+* Added callback option to manually check for a stale value ([97b4d85](https://github.com/mupperton/phunky/commit/97b4d85307fc3d0985dc0c649ad0e717a47cf58a))
+
+### Fixes
+
+* `isResolved()` now returns `true` when an initial value is provided ([7b54bc3](https://github.com/mupperton/phunky/commit/7b54bc3f223936f4844720bd57865a37164bb823))
+
 ## 1.1.0 (2022-11-06)
 
 ### Features
