@@ -182,7 +182,7 @@ describe('caching', () => {
         counter += 1
         return counter
       })
-  
+
       const ttl = 100
       const phunk = new Phunk(resolver, { ttl })
 
@@ -204,7 +204,7 @@ describe('caching', () => {
         counter += 1
         return counter
       })
-  
+
       const ttl = 100
       const phunk = new Phunk(resolver, { ttl })
 
@@ -227,6 +227,49 @@ describe('caching', () => {
       await expect(phunk.current()).resolves.toBe(2)
 
       expect(resolver).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('manual stale check', () => {
+    it.each([
+      [false, false],
+      [1, false],
+      [true, true],
+    ])('cache is stale when the stale method returns true', async (staleResult, shouldBeStale) => {
+      const resolver = jest.fn(() => 1)
+      const stale = () => staleResult as boolean
+
+      const phunk = new Phunk(resolver, { stale })
+
+      await phunk.current()
+      await phunk.current()
+
+      expect(resolver).toHaveBeenCalledTimes(shouldBeStale ? 2 : 1)
+    })
+
+    it('stale checks can be async', async () => {
+      const resolver = jest.fn(() => 1)
+      const stale = async () => {
+        await sleep(100)
+        return true
+      }
+
+      const phunk = new Phunk(resolver, { initialValue: 0, stale })
+
+      await phunk.current()
+
+      expect(resolver).toHaveBeenCalledTimes(1)
+    })
+
+    it.each([
+      [0, 1],
+      [2, 2],
+    ])('stale checks receive the currently resolved value', async (initialValue, expected) => {
+      const resolver = () => 1
+
+      const phunk = new Phunk(resolver, { initialValue, stale: current => current === 0 })
+
+      await expect(phunk.current()).resolves.toBe(expected)
     })
   })
 })

@@ -91,6 +91,7 @@ Optionally pass a configuration object as a second argument to the constructor, 
 * `allowUndefinedInitialValue`: Optional, defaults to `false`, set to `true` if you want to manually set an `initialValue` of `undefined`, otherwise only defined values will be used.
 * `cacheRejections`: Optional, defaults to `false`, set to `true` for your Phunky instance to cache any errors that are thrown by your function. If `false`, calling `.current()` will try re-invoking your function if it previously rejected.
 * `ttl`: (time-to-live) Optional. If set, it must be a positive integer for the number of **milliseconds** resolved values should live for. Any calls to `.current()` after that time, will automatically re-invoke your function to get an updated value.
+* `stale`: Optional. A callback that takes the current resolved value as an argument to manually check if that value should be considered stale. The callback should return `true` if stale. This will cause your Phunk to automatically resolve a new value.
 
 ### Class methods
 

@@ -4,6 +4,7 @@ type Config<T> = {
   allowUndefinedInitialValue?: boolean
   cacheRejections?: boolean
   ttl?: number
+  stale?: (currentResolvedValue?: T) => boolean | Promise<boolean>
 }
 
 const noop = () => {}
@@ -20,6 +21,8 @@ class Phunk<T> {
   #cacheRejections
   #ttl
   #lastResolveTime = 0
+  #currentResolvedValue?: T
+  #stale: ((currentResolvedValue?: T) => boolean | Promise<boolean>) | null = null
 
   constructor(fn: () => T | Promise<T>, config?: Config<T>) {
     const options = config ?? {}
@@ -34,8 +37,13 @@ class Phunk<T> {
 
     this.#ttl = options.ttl ?? null
 
+    if (typeof options.stale === 'function') {
+      this.#stale = options.stale
+    }
+
     if (typeof options.initialValue !== 'undefined') {
       this.#promise = Promise.resolve(options.initialValue)
+      this.#currentResolvedValue = options.initialValue
       this.#isResolved = true
     } else if (Object.hasOwnProperty.call(options, 'initialValue') && options.allowUndefinedInitialValue === true) {
       this.#promise = Promise.resolve(undefined as T)
@@ -64,6 +72,10 @@ class Phunk<T> {
       // ttl expired
       return this.next()
     }
+    if (this.#stale !== null && await this.#stale(this.#currentResolvedValue) === true) {
+      // current resolved value is stale
+      return this.next()
+    }
 
     return this.#promise
   }
@@ -82,9 +94,11 @@ class Phunk<T> {
 
     try {
       const result = await this.#fn()
+      this.#currentResolvedValue = result
       this.#isResolved = true
       return result
     } catch (error) {
+      this.#currentResolvedValue = undefined
       this.#isRejected = true
       throw error
     } finally {
