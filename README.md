@@ -18,11 +18,8 @@
 **Importing**
 
 ```js
-// esm
+// Only ESM is supported
 import { Phunk } from 'phunky'
-
-// cjs
-const { Phunk } = require('phunky')
 ```
 
 **Example usage**

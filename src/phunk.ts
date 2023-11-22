@@ -9,7 +9,7 @@ type Config<T> = {
 
 const noop = () => {}
 
-class Phunk<T> {
+export class Phunk<T> {
   #fn: () => T | Promise<T>
 
   #promise: Promise<T> | null = null
@@ -121,5 +121,3 @@ class Phunk<T> {
     return this.#isRejected
   }
 }
-
-export { Phunk }

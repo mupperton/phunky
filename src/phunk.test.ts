@@ -1,12 +1,21 @@
-import { jest, describe, it, expect } from '@jest/globals'
+import { describe, it, expect, mock } from 'bun:test'
 import { Phunk } from './phunk'
 
 const noop = () => {}
 
 const sleep = (ms: number) => new Promise((resolve) => { setTimeout(resolve, ms) })
 
+const expectToThrowShim = async (fn: () => Promise<any>, expectedError: Error) => {
+  try {
+    await fn()
+    expect.unreachable()
+  } catch (error) {
+    expect(error).toBe(expectedError)
+  }
+}
+
 describe('input validation', () => {
-  it.each([
+  it.each<any>([
     null, '1', -1, 1.5,
   ])('ttl must be a positive integer when provided', (ttlInput) => {
     const ttl = ttlInput as number
@@ -37,7 +46,7 @@ describe('(a)sync resolvers', () => {
 
 describe('immediately invoke', () => {
   it('can be configured to immediately invoke the resolver', () => {
-    const resolver = jest.fn(() => 1)
+    const resolver = mock(() => 1)
 
     new Phunk(resolver, { init: true })
 
@@ -54,7 +63,7 @@ describe('immediately invoke', () => {
 
 describe('initial value', () => {
   it('can be configured to have an initial value', async () => {
-    const resolver = jest.fn(() => 2)
+    const resolver = mock(() => 2)
 
     const phunk = new Phunk(resolver, { initialValue: 1 })
 
@@ -90,7 +99,7 @@ describe('initial value', () => {
 
 describe('caching', () => {
   it('caches resolved values', async () => {
-    const resolver = jest.fn(() => 1)
+    const resolver = mock(() => 1)
 
     const phunk = new Phunk(resolver)
 
@@ -103,7 +112,7 @@ describe('caching', () => {
 
   it('allows cache to be updated', async () => {
     let counter = 0
-    const resolver = jest.fn(() => {
+    const resolver = mock(() => {
       counter += 1
       return counter
     })
@@ -119,7 +128,7 @@ describe('caching', () => {
   })
 
   it('does not unnecessarily invoke the resolver if already resolving', () => {
-    const resolver = jest.fn(() => 1)
+    const resolver = mock(() => 1)
 
     const phunk = new Phunk(resolver)
 
@@ -133,13 +142,12 @@ describe('caching', () => {
   it('does not cache errors by default', async () => {
     const mockError = new Error('Rejection')
 
-    const resolver = jest.fn<() => number>()
+    const resolver = mock(() => 1)
     resolver.mockImplementationOnce(() => { throw mockError })
-    resolver.mockImplementationOnce(() => 1)
 
     const phunk = new Phunk(resolver)
 
-    await expect(phunk.current()).rejects.toThrow(mockError)
+    await expectToThrowShim(() => phunk.current(), mockError)
     await expect(phunk.current()).resolves.toBe(1)
 
     expect(resolver).toHaveBeenCalledTimes(2)
@@ -148,13 +156,12 @@ describe('caching', () => {
   it('does not cache promise rejections by default', async () => {
     const mockError = new Error('Rejection')
 
-    const resolver = jest.fn<() => Promise<number>>()
+    const resolver = mock(() => Promise.resolve(1))
     resolver.mockImplementationOnce(async () => Promise.reject(mockError))
-    resolver.mockImplementationOnce(() => Promise.resolve(1))
 
     const phunk = new Phunk(resolver)
 
-    await expect(phunk.current()).rejects.toThrow(mockError)
+    await expectToThrowShim(() => phunk.current(), mockError)
     await expect(phunk.current()).resolves.toBe(1)
 
     expect(resolver).toHaveBeenCalledTimes(2)
@@ -163,14 +170,13 @@ describe('caching', () => {
   it('can be configured to cache rejections', async () => {
     const mockError = new Error('Rejection')
 
-    const resolver = jest.fn<() => Promise<number>>()
+    const resolver = mock(() => Promise.resolve(1))
     resolver.mockImplementationOnce(async () => Promise.reject(mockError))
-    resolver.mockImplementationOnce(() => Promise.resolve(1))
 
     const phunk = new Phunk(resolver, { cacheRejections: true })
 
-    await expect(phunk.current()).rejects.toThrow(mockError)
-    await expect(phunk.current()).rejects.toThrow(mockError)
+    await expectToThrowShim(() => phunk.current(), mockError)
+    await expectToThrowShim(() => phunk.current(), mockError)
 
     expect(resolver).toHaveBeenCalledTimes(1)
   })
@@ -178,7 +184,7 @@ describe('caching', () => {
   describe('ttl', () => {
     it('updates the cache if the value is stale', async () => {
       let counter = 0
-      const resolver = jest.fn(() => {
+      const resolver = mock(() => {
         counter += 1
         return counter
       })
@@ -200,7 +206,7 @@ describe('caching', () => {
 
     it('cache can always be manually updated', async () => {
       let counter = 0
-      const resolver = jest.fn(() => {
+      const resolver = mock(() => {
         counter += 1
         return counter
       })
@@ -215,7 +221,7 @@ describe('caching', () => {
     })
 
     it('initial values also have the ttl', async () => {
-      const resolver = jest.fn(() => 2)
+      const resolver = mock(() => 2)
 
       const ttl = 100
       const phunk = new Phunk(resolver, { initialValue: 1, ttl })
@@ -236,7 +242,7 @@ describe('caching', () => {
       [1, false],
       [true, true],
     ])('cache is stale when the stale method returns true', async (staleResult, shouldBeStale) => {
-      const resolver = jest.fn(() => 1)
+      const resolver = mock(() => 1)
       const stale = () => staleResult as boolean
 
       const phunk = new Phunk(resolver, { stale })
@@ -248,7 +254,7 @@ describe('caching', () => {
     })
 
     it('stale checks can be async', async () => {
-      const resolver = jest.fn(() => 1)
+      const resolver = mock(() => 1)
       const stale = async () => {
         await sleep(100)
         return true
