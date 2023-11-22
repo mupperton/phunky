@@ -2,6 +2,12 @@
 
 All notable changes will be included in this file.
 
+## 2.0.0 (2023-11-22)
+
+### Breaking changes
+
+* Dropped commonjs support - switched to Bun for builds and tests ([672ba25](https://github.com/mupperton/phunky/commit/672ba2594b9f36b257ad5c60ab7b858e06ba0b3e))
+
 ## 1.2.0 (2023-04-10)
 
 ### Features
